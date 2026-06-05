@@ -2,8 +2,6 @@ server:
   port: 8080
 
 spring:
-  application:
-    name: apigateway
   cloud:
     gateway:
       server:
@@ -11,11 +9,18 @@ spring:
           discovery:
             locator:
               enabled: false
-      routes:
-        - id: minha-rota-auth
-          uri: lb://PROFESSORES.AUTH
-          predicates:
-            - Path=/api/**
+          routes:
+            - id: auth-service
+              uri: lb://PROFESSORES-AUTH
+              predicates:
+                - Path=/api/**
+
+            - id: academico-service
+              uri: lb://ms-academico
+              predicates:
+                - Path=/academico/**
+              filters:
+                - AuthenticationFilter
 
 eureka:
   client:
@@ -23,7 +28,14 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+  instance:
+    prefer-ip-address: true
 
 api:
   jwt:
     secret: UMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUI
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    com.grupo4.apigateway: DEBUG
