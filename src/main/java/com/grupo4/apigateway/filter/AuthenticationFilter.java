@@ -45,7 +45,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             String token = authHeader.substring(7);
 
             try {
-                SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                byte[] keyBytes = io.jsonwebtoken.io.Decoders.BASE64.decode(secretKey);
+                SecretKey key = Keys.hmacShaKeyFor(keyBytes);
 
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(key)
@@ -57,7 +58,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                         .header("X-User-Id", claims.getSubject())
                         .header("X-User-Role", claims.get("role", String.class) != null
-                                ? claims.get("role", String.class) : "")
+                                ? claims.get("role", String.class)
+                                : "")
                         .build();
 
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
@@ -66,8 +68,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
 
-            } catch (io.jsonwebtoken.security.SecurityException |
-                     io.jsonwebtoken.MalformedJwtException e) {
+            } catch (io.jsonwebtoken.security.SecurityException | io.jsonwebtoken.MalformedJwtException e) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
 
@@ -79,6 +80,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     }
 
     public static class Config {
-        
+
     }
 }

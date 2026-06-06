@@ -6,6 +6,13 @@ spring:
     name: apigateway
   cloud:
     gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods: "*"
       server:
         webflux:
           discovery:
@@ -15,12 +22,26 @@ spring:
             - id: auth-service
               uri: lb://PROFESSORES-AUTH
               predicates:
-                - Path=/api/**
+                - Path=/api/login/**
+
+            - id: docentes-service
+              uri: lb://DOCENTES
+              predicates:
+                - Path=/api/professores/**, /api/formacoes/**, /api/interesses/**, /api/disponibilidades/**
+              filters:
+                - AuthenticationFilter
 
             - id: academico-service
-              uri: lb://ms-academico
+              uri: lb://MS-ACADEMICO
               predicates:
-                - Path=/academico/**
+                - Path=/api/disciplina/**, /api/horario/**
+              filters:
+                - AuthenticationFilter
+
+            - id: institucional-service
+              uri: lb://ms-institucional
+              predicates:
+                - Path=/api/ies/**, /api/escolas/**, /api/coordenadores/**
               filters:
                 - AuthenticationFilter
 
@@ -35,7 +56,7 @@ eureka:
 
 api:
   jwt:
-    secret: UMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUI
+    secret: ${JWT_SECRET:UMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUIUMACHAVESECRETADASUAAPIAQUI}
 
 logging:
   level:
