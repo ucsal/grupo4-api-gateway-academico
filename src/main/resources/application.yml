@@ -39,7 +39,7 @@ spring:
                 - AuthenticationFilter
 
             - id: institucional-service
-              uri: lb://ms-institucional
+              uri: lb://MICROSSERVICO-INSTITUCIONAL
               predicates:
                 - Path=/api/ies/**, /api/escolas/**, /api/coordenadores/**
               filters:
