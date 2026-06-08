@@ -27,7 +27,7 @@ spring:
             - id: docentes-service
               uri: lb://DOCENTES
               predicates:
-                - Path=/api/professores/**, /api/formacoes/**, /api/interesses/**, /api/disponibilidades/**
+                - Path=/api/professores/**, /api/formacoes/**, /api/interesses-disciplina/**, /api/disponibilidades/**
               filters:
                 - AuthenticationFilter
 
